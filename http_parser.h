@@ -29,17 +29,14 @@ void parsePath(struct HTTPrequest *req, char *t) {
     tofree = str = strdup(t);
     while ((token = strsep(&str, "?"))) {
         if (req->path == 0) {
-            req->path = (char *)malloc(sizeof(token));
-            strcpy(req->path, token);
+            req->path = strdup(token);
         } else {
-            req->params = (char *)malloc(sizeof(token));
-            strcpy(req->params, token);
+            req->params = strdup(token);
         }
     }
 
     if (req->path == 0) {
-        req->path = (char *)malloc(sizeof(str));
-        strcpy(req->path, str);
+        req->path = strdup(token);
     }
 
     free(tofree);
@@ -56,8 +53,7 @@ void parseRequestLine(struct HTTPrequest *req, char *t) {
 
     while ((token = strsep(&str, " "))) {
         if (req->method == 0) {
-            req->method = (char *)malloc(sizeof(token));
-            strcpy(req->method, token);
+            req->method = strdup(token);
             previousToken = token;
             token = strsep(&str, " ");
 
@@ -69,8 +65,7 @@ void parseRequestLine(struct HTTPrequest *req, char *t) {
         }
 
         if (req->params == 0 && previousToken != 0 && strcmp(previousToken, hostStr) == 0) {
-            req->host = (char *)malloc(sizeof(token));
-            strcpy(req->host, token);
+            req->host = strdup(token);
             previousToken = token;
             continue;
         }
@@ -98,6 +93,5 @@ struct HTTPrequest* parseRequest(char *buffer) {
         parseRequestLine(req, token);
     }
     free(tofree);
-    //req->path = "/actor";
     return req;
 }
