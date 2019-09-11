@@ -118,16 +118,16 @@ void freeReq(struct threadSharedData *t, struct HTTPrequest *req, struct HTTPres
     if (req->params != 0)
         free(req->params);
 
-    if (req)
+    if (req != 0)
         free(req);
 
-    if (res)
+    if (res != 0)
         free(res);
 
-    if (t->buffer)
+    if (t->buffer != 0)
         free(t->buffer);
 
-    if (t)
+    if (t != 0)
         free(t);
 }
 
