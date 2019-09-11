@@ -77,6 +77,12 @@ void parseRequestLine(struct HTTPrequest *req, char *t) {
 
 struct HTTPrequest* parseRequest(char *buffer) {
     struct HTTPrequest *req = (struct HTTPrequest*)malloc(sizeof(struct HTTPrequest));
+
+    if (req == 0) {
+        printf("Method parseRequest. Can't allocate struct HTTPrequest");
+        return 0;
+    }
+
     req->params = 0;
     req->host = 0;
     req->method = 0;

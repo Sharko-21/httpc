@@ -62,6 +62,11 @@ void sendStatus(struct HTTPresponse *res, char *status) {
 
 char* formResponse(struct HTTPresponse *res) {
     char *response = (char *)malloc(450);
+    if (response == 0) {
+        printf("Method formResponse. Can't allocate (char *) for response");
+        return 0;
+    }
+
     if (res->status == 0) {
         strcat(response, "HTTP/1.1 ");
         strcat(response, "200");
@@ -78,6 +83,10 @@ char* formResponse(struct HTTPresponse *res) {
 
 char * formNotFound(struct HTTPresponse *res) {
     char *response = (char *)malloc(450);
+    if (response == 0) {
+        printf("formNotFound something went wrong\n");
+        return 0;
+    }
     strcat(response, "HTTP/1.1 404 NOT FOUND\nDate: Wed, 11 Feb 2009 11:20:59 GMT\nContent-Type: text/html; charset=utf-8\nContent-Length: 89\nConnection: close\n\n<html><body><h1>404 NOT FOUND</h1></body></html>");
     return response;
 }
@@ -126,6 +135,12 @@ void *threadProcessRequest(void *sharedData) {
     char *response;
     struct threadSharedData *t = (struct threadSharedData*)sharedData;
     struct HTTPresponse *res = (struct HTTPresponse*)malloc(sizeof(struct HTTPresponse));
+
+    if (res == 0) {
+        printf("threadProcessRequest\n");
+        return 0;
+    }
+
     res->data = 0;
     res->done = 0;
     res->status = 0;
@@ -159,6 +174,11 @@ void *threadProcessRequest(void *sharedData) {
 
 struct server* createServer() {
     struct server *s = (struct server *)malloc(sizeof(struct server));
+
+    if (s == 0) {
+        printf("wrong create server\n");
+        return 0;
+    }
 
     (*s).port = 80;
     (*s).maxThreadsCount = MAXSERVERTHREADS
@@ -199,7 +219,7 @@ void serverListen(struct server *s) {
     int _socket = socket(AF_INET, SOCK_STREAM, 0);
 
     if (_socket < 0) {
-        printf("Error calling socket");
+        printf("Error calling socket\n");
         return;
     }
 
@@ -224,6 +244,12 @@ void serverListen(struct server *s) {
     char *buffer;
     for(;;) {
         buffer = (char *)malloc(s->bufferSize);
+
+        if (buffer == 0) {
+            printf("Cant allocate buffer");
+            return;
+        }
+
         //Начинаем принимать запросы и создаем новый сокет (уже не слушающий). accept возвращает дескриптор нового сокета
         int s1 = accept(_socket, NULL, NULL);
         if (s1 < 0) {
@@ -251,6 +277,12 @@ void serverListen(struct server *s) {
         }
 
         struct threadSharedData *sharedData = (struct threadSharedData *)malloc(sizeof(struct threadSharedData));
+
+        if (sharedData == 0) {
+            printf("Cant allocate threadSharedData\n");
+            return;
+        }
+
         (*sharedData).sockaddrIn = sockaddrIn;
         sharedData->purposeSocket = s1;
         sharedData->workingThreadsCount = &working_threads_count;
@@ -272,9 +304,19 @@ void bindEndpoint(struct server *s, char path[], char *httpMethod, void (*fun)(s
 
     if (s->bindedFuncs == 0) {
         s->bindedFuncs = (struct bindedFunc *) malloc(sizeof(func));
+
+        if (s->bindedFuncs == 0) {
+            printf("Cant allocate new bind func\n");
+            return;
+        }
+
         s->bindedFuncs[0] = func;
     } else {
         s->bindedFuncs = (struct bindedFunc *) realloc(s->bindedFuncs, sizeof(s->bindedFuncs) + sizeof(func));
+        if (s->bindedFuncs == 0) {
+            printf("Cant realloc new bind func\n");
+            return;
+        }
         s->bindedFuncs[s->bindedFuncsNum] = func;
     }
 
